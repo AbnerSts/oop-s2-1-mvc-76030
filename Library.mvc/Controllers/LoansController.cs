@@ -18,7 +18,6 @@ namespace Library.mvc.Controllers
             _context = context;
         }
 
-        // GET: Loans
         public async Task<IActionResult> Index()
         {
             var loans = _context.Loans
@@ -28,7 +27,6 @@ namespace Library.mvc.Controllers
             return View(await loans.ToListAsync());
         }
 
-        // GET: Loans/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -43,7 +41,6 @@ namespace Library.mvc.Controllers
             return View(loan);
         }
 
-        // GET: Loans/Create
         public IActionResult Create()
         {
             ViewData["BookId"] = new SelectList(_context.Books, "Id", "Title");
@@ -51,12 +48,10 @@ namespace Library.mvc.Controllers
             return View();
         }
 
-        // POST: Loans/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,BookId,MemberId,DueDate")] Loan loan)
         {
-            // ❗ RULE 1: Prevent duplicate active loan
             var activeLoan = await _context.Loans
                 .FirstOrDefaultAsync(l =>
                     l.BookId == loan.BookId &&
@@ -83,7 +78,6 @@ namespace Library.mvc.Controllers
             return View(loan);
         }
 
-        // ✅ RETURN BOOK
         public async Task<IActionResult> Return(int id)
         {
             var loan = await _context.Loans.FindAsync(id);
@@ -97,7 +91,6 @@ namespace Library.mvc.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Loans/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -112,7 +105,6 @@ namespace Library.mvc.Controllers
             return View(loan);
         }
 
-        // POST: Loans/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,BookId,MemberId,LoanDate,DueDate,ReturnedDate")] Loan loan)
@@ -143,7 +135,6 @@ namespace Library.mvc.Controllers
             return View(loan);
         }
 
-        // GET: Loans/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -158,7 +149,6 @@ namespace Library.mvc.Controllers
             return View(loan);
         }
 
-        // POST: Loans/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

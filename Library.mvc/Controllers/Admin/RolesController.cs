@@ -14,14 +14,13 @@ namespace Library.mvc.Controllers.Admin
             _roleManager = roleManager;
         }
 
-        // GET: /Admin/Roles
         public IActionResult Index()
         {
             var roles = _roleManager.Roles;
             return View(roles);
         }
 
-        // POST: Create Role
+
         [HttpPost]
         public async Task<IActionResult> Create(string roleName)
         {
@@ -32,7 +31,6 @@ namespace Library.mvc.Controllers.Admin
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Delete Role
         [HttpPost]
         public async Task<IActionResult> Delete(string id)
         {

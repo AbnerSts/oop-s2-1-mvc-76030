@@ -19,12 +19,11 @@ namespace Library.mvc.Controllers
                 _context = context;
             }
 
-            // GET: Books (WITH SEARCH + FILTER)
             public async Task<IActionResult> Index(string search, string category, string availability)
             {
                 var books = _context.Books.AsQueryable();
 
-                // 🔍 Search by Title or Author
+
                 if (!string.IsNullOrEmpty(search))
                 {
                     books = books.Where(b =>
@@ -32,13 +31,11 @@ namespace Library.mvc.Controllers
                         b.Author.Contains(search));
                 }
 
-                // 📂 Filter by Category
                 if (!string.IsNullOrEmpty(category))
                 {
                     books = books.Where(b => b.Category.Contains(category));
                 }
 
-                // 📊 Filter by Availability
                 if (availability == "Available")
                 {
                     books = books.Where(b => b.IsAvailable);
@@ -51,7 +48,6 @@ namespace Library.mvc.Controllers
                 return View(await books.ToListAsync());
             }
 
-            // GET: Books/Details/5
             public async Task<IActionResult> Details(int? id)
             {
                 if (id == null)
@@ -66,13 +62,11 @@ namespace Library.mvc.Controllers
                 return View(book);
             }
 
-            // GET: Books/Create
             public IActionResult Create()
             {
                 return View();
             }
 
-            // POST: Books/Create
             [HttpPost]
             [ValidateAntiForgeryToken]
             public async Task<IActionResult> Create([Bind("Id,Title,Author,Isbn,Category,IsAvailable")] Book book)
@@ -86,7 +80,6 @@ namespace Library.mvc.Controllers
                 return View(book);
             }
 
-            // GET: Books/Edit/5
             public async Task<IActionResult> Edit(int? id)
             {
                 if (id == null)
@@ -100,7 +93,6 @@ namespace Library.mvc.Controllers
                 return View(book);
             }
 
-            // POST: Books/Edit/5
             [HttpPost]
             [ValidateAntiForgeryToken]
             public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Author,Isbn,Category,IsAvailable")] Book book)
@@ -127,7 +119,6 @@ namespace Library.mvc.Controllers
                 return View(book);
             }
 
-            // GET: Books/Delete/5
             public async Task<IActionResult> Delete(int? id)
             {
                 if (id == null)
@@ -142,7 +133,6 @@ namespace Library.mvc.Controllers
                 return View(book);
             }
 
-            // POST: Books/Delete/5
             [HttpPost, ActionName("Delete")]
             [ValidateAntiForgeryToken]
             public async Task<IActionResult> DeleteConfirmed(int id)

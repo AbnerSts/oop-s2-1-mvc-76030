@@ -24,26 +24,26 @@ namespace Library.mvc.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Customer -> Invoices
+            
             modelBuilder.Entity<Invoice>()
                 .HasOne(i => i.Customer)
                 .WithMany(c => c.Invoices)
                 .HasForeignKey(i => i.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Invoice -> Lines
+            
             modelBuilder.Entity<InvoiceLine>()
                 .HasOne(l => l.Invoice)
                 .WithMany(i => i.Lines)
                 .HasForeignKey(l => l.InvoiceId);
 
-            // Product -> Lines
+            
             modelBuilder.Entity<InvoiceLine>()
                 .HasOne(l => l.Product)
                 .WithMany(p => p.InvoiceLines)
                 .HasForeignKey(l => l.ProductId);
 
-            // Money precision
+            
             modelBuilder.Entity<Product>()
                 .Property(p => p.UnitPrice)
                 .HasPrecision(10, 2);
@@ -52,14 +52,14 @@ namespace Library.mvc.Data
                 .Property(l => l.UnitPrice)
                 .HasPrecision(10, 2);
 
-            // Book -> Loans
+            
             modelBuilder.Entity<Loan>()
                 .HasOne(l => l.Book)
                 .WithMany(b => b.Loans)
                 .HasForeignKey(l => l.BookId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Member -> Loans
+            
             modelBuilder.Entity<Loan>()
                 .HasOne(l => l.Member)
                 .WithMany(m => m.Loans)

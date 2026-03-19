@@ -20,7 +20,6 @@ namespace Library.mvc.Controllers
                 if (_context.Books.Any())
                     return Content("Database already seeded!");
 
-                // 📚 BOOKS
                 var books = new List<Book>
     {
         new Book { Title = "The Hobbit", Author = "J.R.R. Tolkien", Category = "Fantasy", Isbn = "111", IsAvailable = true },
@@ -37,7 +36,6 @@ namespace Library.mvc.Controllers
 
                 _context.Books.AddRange(books);
 
-                // 👤 MEMBERS
                 var members = new List<Member>
     {
         new Member { FullName = "John Smith", Email = "john@test.com", Phone = "111111111" },
@@ -51,7 +49,6 @@ namespace Library.mvc.Controllers
 
                 _context.SaveChanges();
 
-                // 🔄 LOANS
                 var dbBooks = _context.Books.ToList();
                 var dbMembers = _context.Members.ToList();
 
