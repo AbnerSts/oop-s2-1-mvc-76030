@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -22,26 +21,24 @@ namespace Library.mvc.Controllers
         // GET: Loans
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Loans.Include(l => l.Book).Include(l => l.Member);
-            return View(await applicationDbContext.ToListAsync());
+            var loans = _context.Loans
+                .Include(l => l.Book)
+                .Include(l => l.Member);
+
+            return View(await loans.ToListAsync());
         }
 
         // GET: Loans/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var loan = await _context.Loans
                 .Include(l => l.Book)
                 .Include(l => l.Member)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (loan == null)
-            {
-                return NotFound();
-            }
+
+            if (loan == null) return NotFound();
 
             return View(loan);
         }
@@ -49,58 +46,78 @@ namespace Library.mvc.Controllers
         // GET: Loans/Create
         public IActionResult Create()
         {
-            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Author");
-            ViewData["MemberId"] = new SelectList(_context.Members, "Id", "Email");
+            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Title");
+            ViewData["MemberId"] = new SelectList(_context.Members, "Id", "FullName");
             return View();
         }
 
         // POST: Loans/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,BookId,MemberId,LoanDate,DueDate,ReturnedDate")] Loan loan)
+        public async Task<IActionResult> Create([Bind("Id,BookId,MemberId,DueDate")] Loan loan)
         {
+            // ❗ RULE 1: Prevent duplicate active loan
+            var activeLoan = await _context.Loans
+                .FirstOrDefaultAsync(l =>
+                    l.BookId == loan.BookId &&
+                    l.ReturnedDate == null);
+
+            if (activeLoan != null)
+            {
+                ModelState.AddModelError("", "This book is already on loan.");
+            }
+
             if (ModelState.IsValid)
             {
+                loan.LoanDate = DateTime.Now;
+
                 _context.Add(loan);
                 await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Author", loan.BookId);
-            ViewData["MemberId"] = new SelectList(_context.Members, "Id", "Email", loan.MemberId);
+
+            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Title", loan.BookId);
+            ViewData["MemberId"] = new SelectList(_context.Members, "Id", "FullName", loan.MemberId);
+
             return View(loan);
+        }
+
+        // ✅ RETURN BOOK
+        public async Task<IActionResult> Return(int id)
+        {
+            var loan = await _context.Loans.FindAsync(id);
+
+            if (loan == null) return NotFound();
+
+            loan.ReturnedDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Loans/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var loan = await _context.Loans.FindAsync(id);
-            if (loan == null)
-            {
-                return NotFound();
-            }
-            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Author", loan.BookId);
-            ViewData["MemberId"] = new SelectList(_context.Members, "Id", "Email", loan.MemberId);
+
+            if (loan == null) return NotFound();
+
+            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Title", loan.BookId);
+            ViewData["MemberId"] = new SelectList(_context.Members, "Id", "FullName", loan.MemberId);
+
             return View(loan);
         }
 
         // POST: Loans/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,BookId,MemberId,LoanDate,DueDate,ReturnedDate")] Loan loan)
         {
-            if (id != loan.Id)
-            {
-                return NotFound();
-            }
+            if (id != loan.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -112,37 +129,31 @@ namespace Library.mvc.Controllers
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!LoanExists(loan.Id))
-                    {
                         return NotFound();
-                    }
                     else
-                    {
                         throw;
-                    }
                 }
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Author", loan.BookId);
-            ViewData["MemberId"] = new SelectList(_context.Members, "Id", "Email", loan.MemberId);
+
+            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Title", loan.BookId);
+            ViewData["MemberId"] = new SelectList(_context.Members, "Id", "FullName", loan.MemberId);
+
             return View(loan);
         }
 
         // GET: Loans/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var loan = await _context.Loans
                 .Include(l => l.Book)
                 .Include(l => l.Member)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (loan == null)
-            {
-                return NotFound();
-            }
+
+            if (loan == null) return NotFound();
 
             return View(loan);
         }
@@ -153,12 +164,13 @@ namespace Library.mvc.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var loan = await _context.Loans.FindAsync(id);
+
             if (loan != null)
             {
                 _context.Loans.Remove(loan);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
