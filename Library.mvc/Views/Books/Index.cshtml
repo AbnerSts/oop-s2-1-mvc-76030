@@ -29,21 +29,11 @@
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Author)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Isbn)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsAvailable)
-            </th>
+            <th>@Html.DisplayNameFor(model => model.Title)</th>
+            <th>@Html.DisplayNameFor(model => model.Author)</th>
+            <th>@Html.DisplayNameFor(model => model.Isbn)</th>
+            <th>@Html.DisplayNameFor(model => model.Category)</th>
+            <th>Status</th>
             <th></th>
         </tr>
     </thead>
@@ -52,28 +42,23 @@
         @foreach (var item in Model)
         {
             <tr>
+                <td>@item.Title</td>
+                <td>@item.Author</td>
+                <td>@item.Isbn</td>
+                <td>@item.Category</td>
+
+    
                 <td>
-                    @Html.DisplayFor(modelItem => item.Title)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Author)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Isbn)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Category)
-                </td>
-                <td>
-                    @if (item.IsAvailable)
-                    {
-                        <span style="color:green;">Available</span>
-                    }
-                    else
+                    @if (item.Loans.Any(l => l.ReturnedDate == null))
                     {
                         <span style="color:red;">On Loan</span>
                     }
+                    else
+                    {
+                        <span style="color:green;">Available</span>
+                    }
                 </td>
+
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a> |

@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Views\Products\Create.cshtml" />
+    <Compile Remove="Controllers\CustomersController.cs" />
   </ItemGroup>
 
   <ItemGroup>

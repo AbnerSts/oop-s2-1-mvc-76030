@@ -23,8 +23,8 @@ namespace Library.domain.Models
 
         public DateTime? ReturnedDate { get; set; }
 
-        public Book Book { get; set; }
+        public Book? Book { get; set; }
 
-        public Member Member { get; set; }
+        public Member? Member { get; set; }
     }
 }
